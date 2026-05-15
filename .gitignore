@@ -1,0 +1,60 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+.env
+
+# uv
+.uv/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Data — large files, not for version control
+data/
+*.csv
+*.zip
+*.jsonl
+corpus.jsonl
+
+# Model weights & adapters — too large for git
+adapter/
+*.safetensors
+*.bin
+*.pt
+*.pth
+checkpoint-*/
+
+# Logs
+*.log
+train_log.txt
+pipeline_log.txt
+auto_stop_log.txt
+nohup.out
+
+# HuggingFace cache
+.cache/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
