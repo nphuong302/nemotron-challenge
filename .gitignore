@@ -58,3 +58,7 @@ desktop.ini
 .idea/
 *.swp
 *.swo
+
+# Stale weights / third-party reference notebooks — kept local, not for git
+adapter_v4/
+competitor_refs/
