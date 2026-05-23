@@ -1,5 +1,5 @@
 """
-v5 DATA CURATION + assembly.
+DATA CURATION + assembly.
 Takes the raw real + synthetic sets and produces a clean, accurate, training-ready
 curriculum. Every surviving record passes the SAME accuracy bar.
 
@@ -11,14 +11,14 @@ Stages (each reports how many it drops):
   5. length cap             - drop records longer than the training context allows
   6. assemble               - oversample hard buckets (bit, cipher), shuffle
 
-Input : v5_real_curriculum.jsonl, v5_synth_curriculum.jsonl
-Output: v5_curated_curriculum.jsonl
+Input : real_curriculum.jsonl, synth_curriculum.jsonl
+Output: curated_curriculum.jsonl
 """
 import json, re, random
 from pathlib import Path
 from collections import Counter, defaultdict
 
-import makers as cv4
+import makers
 from solvers import solve_bit  # stronger bit coverage than the maker
 
 REAL = Path("real_curriculum.jsonl")
@@ -54,13 +54,13 @@ def resolve_answer(rec):
     bp = base_prompt(rec)
     if bp in _cache:
         return _cache[bp]
-    t = cv4.detect_type(bp)
+    t = makers.detect_type(bp)
     ans = None
     try:
         if t == "bit":
             ans = solve_bit(bp)
-        elif t in cv4.MAKERS:
-            res = cv4.MAKERS[t](bp)
+        elif t in makers.MAKERS:
+            res = makers.MAKERS[t](bp)
             ans = res[1] if res else None
     except Exception:
         ans = None
@@ -87,7 +87,7 @@ def main():
             drops["weak_bit_trace"] += 1; continue
         # 3. round-trip verify
         t, recovered = resolve_answer(rec)
-        if recovered is None or not cv4.answers_match(recovered, ans, t):
+        if recovered is None or not makers.answers_match(recovered, ans, t):
             drops["reverify_fail"] += 1; continue
         # 5. length (do cheap char check here)
         if len(u) + len(a) > CHAR_CAP:

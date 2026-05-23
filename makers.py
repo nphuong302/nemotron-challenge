@@ -1,5 +1,5 @@
 """
-Verified chain-of-thought makers for the v5 pipeline.
+Verified chain-of-thought makers for the data pipeline.
 
 For each problem type, a maker parses the prompt, derives the hidden rule, and
 returns (cot_trace, computed_answer) — or None if the rule can't be recovered.
@@ -7,7 +7,6 @@ Callers verify computed_answer against the gold label before keeping an example,
 so only correct (problem, trace, answer) triples enter the curriculum.
 
 Self-contained: depends only on solvers.py (bit primitives + example parsing).
-Ported from the former 04_corpus_v4.py.
 """
 import re
 import statistics

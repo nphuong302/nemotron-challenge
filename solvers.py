@@ -88,7 +88,6 @@ def _learn_per_bit(examples: list[tuple[int, int]], query: int) -> Optional[str]
     Tries (in order): constant 0/1, single bit, NOT single bit,
     and XOR/AND/OR of every pair of input bits.
     """
-    n = len(examples)
     result = 0
     for out_pos in range(8):
         target = [(e[1] >> out_pos) & 1 for e in examples]

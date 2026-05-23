@@ -15,6 +15,25 @@ dependencies = [
     "pandas>=2.0.0",
 ]
 
-[tool.uv]
-# The data pipeline (v5_*.py, solvers.py) is pure stdlib and needs none of the
-# above — those are only required for training/eval on the GPU host (VM/Kaggle).
+# The pipeline scripts (makers/build_corpus/synth/assemble/curate/coverage) and
+# solvers.py are pure stdlib — the deps above are only needed for training/eval
+# on the GPU host (VM/Kaggle), not for local data work or CI.
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.6",
+]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+# Gate CI on real bugs (pyflakes + syntax), not stylistic noise. The compact
+# inline style in solvers.py (bit-op tables) and the `drop; continue` pattern in
+# curate.py are intentional.
+select = ["E9", "F"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

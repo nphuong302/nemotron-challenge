@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up uv + Python
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.11"
+
+      # Install only the dev group (ruff, pytest) — NOT torch/transformers.
+      # The data pipeline is pure stdlib, so CI stays fast.
+      - name: Install dev tools
+        run: uv sync --only-group dev
+
+      - name: Lint (ruff)
+        run: uv run --no-sync ruff check .
+
+      - name: Test (pytest)
+        run: uv run --no-sync pytest -q

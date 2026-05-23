@@ -1,12 +1,12 @@
 """
-v5 curriculum assembler.
+curriculum assembler.
 Combines the verified REAL set with the SYNTHETIC set into one shuffled SFT file.
 
 Mixing logic (mirrors the failure-mining idea, bucket-level since we have no
 base-model predictions yet):
   - real examples from hard buckets (bit, cipher) are oversampled
   - synthetic examples are included once each
-Output: v5_final_curriculum.jsonl  (+ prints composition and a token estimate)
+Output: final_curriculum.jsonl  (+ prints composition and a token estimate)
 """
 import json, random
 from pathlib import Path

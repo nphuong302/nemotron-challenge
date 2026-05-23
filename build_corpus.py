@@ -1,5 +1,5 @@
 """
-v5 REAL curriculum builder.
+REAL curriculum builder.
 Solves each train row with our verified CoT makers and emits training-ready
 chat records. Every emitted example is VERIFIED (computed answer == gold), so
 the model only ever sees correct targets.
@@ -8,13 +8,13 @@ For each verified row we emit two records:
   - real_answer : target is just \boxed{gold}      (teaches answer formatting)
   - real_trace  : target is the verified CoT + box  (teaches the reasoning path)
 
-Output: v5_real_curriculum.jsonl  (messages format, ready for SFT)
+Output: real_curriculum.jsonl  (messages format, ready for SFT)
 """
 import csv, json
 from pathlib import Path
 from collections import defaultdict
 
-import makers as cv4
+import makers
 
 DATA = next(p for p in [Path("data/train.csv"),
             Path("data/nvidia-nemotron-model-reasoning-challenge/train.csv")] if p.exists())
@@ -41,14 +41,14 @@ def main():
     by_bucket = defaultdict(int)
 
     for row in rows:
-        t = cv4.detect_type(row["prompt"])
-        if t not in cv4.MAKERS:
+        t = makers.detect_type(row["prompt"])
+        if t not in makers.MAKERS:
             continue
-        res = cv4.MAKERS[t](row["prompt"])
+        res = makers.MAKERS[t](row["prompt"])
         if res is None:
             continue
         trace, ans = res
-        if not cv4.answers_match(ans, row["answer"], t):
+        if not makers.answers_match(ans, row["answer"], t):
             continue
 
         verified += 1

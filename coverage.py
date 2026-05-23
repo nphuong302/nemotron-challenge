@@ -1,13 +1,13 @@
 """
-True teacher-coverage using the v4 CoT makers (which have the correct parsers
+True teacher-coverage using the CoT makers (which have the correct parsers
 and already emit reasoning traces), uncapped over the full train set.
-This is the real ceiling of verified examples we can distill for v5.
+This is the real ceiling of verified examples we can distill.
 """
 import csv
 from pathlib import Path
 from collections import defaultdict
 
-import makers as cv4
+import makers
 
 DATA = next(p for p in [Path("data/train.csv"),
             Path("data/nvidia-nemotron-model-reasoning-challenge/train.csv")] if p.exists())
@@ -18,16 +18,16 @@ correct = defaultdict(int)    # result verified against gold
 
 rows = list(csv.DictReader(open(DATA, encoding="utf-8")))
 for row in rows:
-    t = cv4.detect_type(row["prompt"])
+    t = makers.detect_type(row["prompt"])
     total[t] += 1
-    if t not in cv4.MAKERS:
+    if t not in makers.MAKERS:
         continue
-    res = cv4.MAKERS[t](row["prompt"])
+    res = makers.MAKERS[t](row["prompt"])
     if res is None:
         continue
     made[t] += 1
     _, ans = res
-    if cv4.answers_match(ans, row["answer"], t):
+    if makers.answers_match(ans, row["answer"], t):
         correct[t] += 1
 
 g_tot = sum(total.values()); g_cor = sum(correct.values())

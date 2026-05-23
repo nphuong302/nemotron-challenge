@@ -1,0 +1,11 @@
+# Optional local hooks. Enable once with:  uvx pre-commit install
+# Uses the project's own ruff (from the dev group) so it matches CI exactly.
+repos:
+  - repo: local
+    hooks:
+      - id: ruff
+        name: ruff (lint)
+        entry: uv run --no-sync ruff check
+        language: system
+        types: [python]
+        pass_filenames: false

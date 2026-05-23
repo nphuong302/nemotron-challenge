@@ -1,5 +1,5 @@
 """
-v5 SYNTHETIC generator.
+SYNTHETIC generator.
 We control the rule, so every generated example is verifiable and ships with a
 correct reasoning trace. Prompts mirror the real train templates exactly so the
 model sees consistent formatting at train/test time.
@@ -9,7 +9,7 @@ Buckets generated: bit, gravity, unit, numeral, cipher.
 substitution, so synthetic symbol would not match the hidden rule family.)
 
 Weighted toward the failure-prone buckets (cipher especially) by default.
-Output: v5_synth_curriculum.jsonl
+Output: synth_curriculum.jsonl
 """
 import json, random, string
 from pathlib import Path
