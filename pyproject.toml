@@ -11,8 +11,17 @@ dependencies = [
     "trl>=0.8.0",
     "datasets>=2.18.0",
     "accelerate>=0.29.0",
-    "bitsandbytes>=0.43.0",
     "pandas>=2.0.0",
+]
+
+[project.optional-dependencies]
+# Runtime packages used by the Kaggle RTX 6000 utility-script path. Keep these
+# optional because the Mamba/CUDA packages are Linux GPU builds, not local
+# Windows development requirements.
+kaggle-rtx6000 = [
+    "mamba-ssm>=2.2.4",
+    "causal-conv1d>=1.4.0",
+    "flash-attn>=2.7.0",
 ]
 
 # The pipeline scripts (makers/build_corpus/synth/assemble/curate/coverage) and
@@ -27,6 +36,7 @@ dev = [
 [tool.ruff]
 target-version = "py311"
 line-length = 100
+exclude = ["kaggle_remote/"]
 
 [tool.ruff.lint]
 # Gate CI on real bugs (pyflakes + syntax), not stylistic noise. The compact

@@ -22,6 +22,7 @@ env/
 # Jupyter
 .ipynb_checkpoints/
 *.ipynb
+!kaggle_remote/*.ipynb
 
 # Data — large files, not for version control
 data/
@@ -62,3 +63,8 @@ desktop.ini
 # Stale weights / third-party reference notebooks — kept local, not for git
 adapter_v4/
 competitor_refs/
+
+# Local-only Kaggle reference notebooks / utility kernels (re-downloadable or
+# pushed separately), not for git.
+kaggle_nemotron_utility/
+sample_notebooks/

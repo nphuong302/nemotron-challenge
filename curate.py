@@ -4,12 +4,12 @@ Takes the raw real + synthetic sets and produces a clean, accurate, training-rea
 curriculum. Every surviving record passes the SAME accuracy bar.
 
 Stages (each reports how many it drops):
-  1. format validation     - non-empty turns, parseable \boxed{}
-  2. trace-quality filter   - drop bit "per-bit boolean" table-dump traces
-  3. round-trip re-verify   - re-solve the prompt independently; boxed answer must match
-  4. dedupe                 - exact (prompt,response); cap identical synthetic prompts
-  5. length cap             - drop records longer than the training context allows
-  6. assemble               - oversample hard buckets (bit, cipher), shuffle
+1. format validation     - non-empty turns, parseable \boxed{}
+2. trace-quality filter   - drop bit "per-bit boolean" table-dump traces
+3. round-trip re-verify   - re-solve the prompt independently; boxed answer must match
+4. dedupe                 - exact (prompt,response); cap identical synthetic prompts
+5. length cap             - drop records longer than the training context allows
+6. assemble               - oversample hard buckets (bit, cipher), shuffle
 
 Input : real_curriculum.jsonl, synth_curriculum.jsonl
 Output: curated_curriculum.jsonl

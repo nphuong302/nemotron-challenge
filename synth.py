@@ -49,7 +49,18 @@ BIT_HEADER = ("In Alice's Wonderland, a secret bit manipulation rule transforms 
               "binary numbers. The transformation involves operations like bit shifts, "
               "rotations, XOR, AND, OR, NOT, and possibly majority or choice functions.")
 
+def _bit_prompt(ex, q):
+    lines = [BIT_HEADER, "", "Here are some examples of input -> output:"]
+    lines += [f"{i:08b} -> {o:08b}" for i, o in ex]
+    lines += ["", f"Now, determine the output for: {q:08b}"]
+    return "\n".join(lines)
+
+
 def gen_bit(rng):
+    # ~30% two-step rules so the model also learns composed transforms (these
+    # are recoverable by solve_bit's _try_two_ops, so curate keeps them).
+    if rng.random() < 0.3:
+        return _gen_bit_two_step(rng)
     rules = (
         [("NOT", 0, "invert every bit (NOT)")]
         + [("REV", 0, "reverse the bit order")]
@@ -66,12 +77,40 @@ def gen_bit(rng):
     ex = [(v, _apply_bit_op(v, op, param)) for v in vals[:8]]
     q = vals[8]
     ans = f"{_apply_bit_op(q, op, param):08b}"
-    lines = [BIT_HEADER, "", "Here are some examples of input -> output:"]
-    lines += [f"{i:08b} -> {o:08b}" for i, o in ex]
-    lines += ["", f"Now, determine the output for: {q:08b}"]
     trace = (f"Comparing inputs to outputs, the rule is to {desc}. "
              f"Applying it to {q:08b} gives {ans}.")
-    return "\n".join(lines), trace, ans
+    return _bit_prompt(ex, q), trace, ans
+
+
+# op1 must lie in solve_bit's _try_two_ops candidate set (NOT/REV/ROL/ROR) so
+# the composed rule stays recoverable on re-verify.
+_TWO_OP1 = (
+    [("NOT", 0, "invert every bit (NOT)"), ("REV", 0, "reverse the bit order")]
+    + [("ROL", k, f"rotate left by {k}") for k in (1, 2, 3)]
+    + [("ROR", k, f"rotate right by {k}") for k in (1, 2, 3)]
+)
+
+
+def _gen_bit_two_step(rng):
+    op1, p1, desc1 = rng.choice(_TWO_OP1)
+    op2, p2, desc2 = rng.choice(
+        [("NOT", 0, "invert every bit (NOT)"), ("REV", 0, "reverse the bit order")]
+        + [("ROL", k, f"rotate left by {k}") for k in (1, 2)]
+        + [("ROR", k, f"rotate right by {k}") for k in (1, 2)]
+        + [("XOR", m, f"XOR with mask {m:08b}") for m in (rng.randint(1, 255),)]
+    )
+    apply2 = lambda v: _apply_bit_op(_apply_bit_op(v, op1, p1), op2, p2)
+    vals = rng.sample(range(256), 9)
+    ex = [(v, apply2(v)) for v in vals[:8]]
+    if all(i == o for i, o in ex):       # composed to identity -> retry
+        return _gen_bit_two_step(rng)
+    q = vals[8]
+    mid = _apply_bit_op(q, op1, p1)
+    ans = f"{apply2(q):08b}"
+    trace = (f"Comparing inputs to outputs, the rule is two steps: first {desc1}, "
+             f"then {desc2}. Applying to {q:08b}: step 1 gives {mid:08b}, "
+             f"step 2 gives {ans}.")
+    return _bit_prompt(ex, q), trace, ans
 
 
 # ── gravity ───────────────────────────────────────────────────────────────────
@@ -162,8 +201,9 @@ GENERATORS = {
     "cipher": gen_cipher,
 }
 
-# default allocation — weighted toward failure-prone buckets
-DEFAULT_ALLOC = {"cipher": 3000, "bit": 2000, "numeral": 800, "gravity": 800, "unit": 800}
+# default allocation — weighted toward failure-prone buckets. bit is raised to
+# backfill the real bit rows now dropped for weak (per-bit-boolean) traces.
+DEFAULT_ALLOC = {"cipher": 3000, "bit": 3000, "numeral": 800, "gravity": 800, "unit": 800}
 OUT = Path("synth_curriculum.jsonl")
 
 
