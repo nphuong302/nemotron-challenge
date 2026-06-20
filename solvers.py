@@ -333,6 +333,9 @@ def solve_symbol(prompt: str) -> Optional[str]:
                 char_map = {}
                 break
             char_map[ci] = co
+        else:
+            continue
+        break
 
     if char_map:
         result = ""

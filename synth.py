@@ -168,7 +168,7 @@ def gen_numeral(rng):
 
 
 # ── cipher (random monoalphabetic, full query coverage) ────────────────────────
-def gen_cipher(rng):
+def gen_cipher(rng, _retry=0):
     perm = list(ALPHABET)
     rng.shuffle(perm)
     enc = {p: c for p, c in zip(ALPHABET, perm)}     # plain -> cipher
@@ -178,7 +178,9 @@ def gen_cipher(rng):
     seen = set("".join(ex_plain).replace(" ", ""))
     candidates = [w for w in WORD_POOL if set(w) <= seen]
     if len(candidates) < 2:
-        return gen_cipher(rng)  # retry; rare
+        if _retry >= 20:
+            raise RuntimeError("gen_cipher: no decodable query candidates after 20 retries")
+        return gen_cipher(rng, _retry + 1)
     q_plain = " ".join(rng.sample(candidates, rng.choice([2, 3])))
 
     lines = ["In Alice's Wonderland, secret encryption rules are used on text. Here are some examples:"]

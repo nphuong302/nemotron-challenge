@@ -9,8 +9,16 @@ from collections import defaultdict
 
 import makers
 
-DATA = next(p for p in [Path("data/train.csv"),
-            Path("data/nvidia-nemotron-model-reasoning-challenge/train.csv")] if p.exists())
+DATA = next(
+    (p for p in [Path("data/train.csv"),
+                 Path("data/nvidia-nemotron-model-reasoning-challenge/train.csv")] if p.exists()),
+    None,
+)
+if DATA is None:
+    raise FileNotFoundError(
+        "train.csv not found; place it at data/train.csv or "
+        "data/nvidia-nemotron-model-reasoning-challenge/train.csv"
+    )
 
 total = defaultdict(int)
 made = defaultdict(int)       # maker returned a result

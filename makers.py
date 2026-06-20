@@ -216,7 +216,7 @@ def make_bit_cot(prompt: str):
     single = _try_single_ops(ex)
     if single:
         op_name, param = single
-        label = op_name if not param else f"{op_name} {param}"
+        label = op_name if op_name in ("NOT", "REV") else f"{op_name} {param}"
         lines = [f"8-bit operation detected: {label}"]
         for i_int, o_int in ex[:3]:
             lines.append(f"  {i_int:08b} → {o_int:08b}  ✓")
@@ -226,8 +226,8 @@ def make_bit_cot(prompt: str):
     two = _try_two_ops(ex)
     if two:
         op1, p1, op2, p2 = two
-        label1 = op1 if not p1 else f"{op1} {p1}"
-        label2 = op2 if not p2 else f"{op2} {p2}"
+        label1 = op1 if op1 in ("NOT", "REV") else f"{op1} {p1}"
+        label2 = op2 if op2 in ("NOT", "REV") else f"{op2} {p2}"
         mid_int = _apply_bit_op(q, op1, p1)
         mid_str = f"{mid_int:08b}"
         lines = [f"Two-step 8-bit operation: {label1} then {label2}"]
