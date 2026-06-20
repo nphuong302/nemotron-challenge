@@ -51,10 +51,13 @@ kaggle kernels push -p kaggle_remote
 # 2. Poll until status changes from "running" to "complete"
 kaggle kernels status nphuong302/nemotron-challenge-solver-distilled-lora
 
-# 3. Download the output (submission.zip lands in the current directory)
-kaggle kernels output nphuong302/nemotron-challenge-solver-distilled-lora -p .
+# 3. List output files (verify submission.zip is present)
+kaggle kernels files nphuong302/nemotron-challenge-solver-distilled-lora
 
-# 4. Submit
+# 4. Download output (-o overwrites on re-runs)
+kaggle kernels output nphuong302/nemotron-challenge-solver-distilled-lora -p . -o
+
+# 5. Submit
 kaggle competitions submit -c nvidia-nemotron-model-reasoning-challenge \
   -f submission.zip -m "solver-distilled LoRA r32 all-linear 450 steps"
 ```
