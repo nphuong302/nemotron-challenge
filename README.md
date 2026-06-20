@@ -19,8 +19,7 @@ record. We add templated synthetic data for coverage, then independently
 re-verify every record. This is our original contribution — the data, not the
 weights.
 
-The result is fine-tuned into the 30B with LoRA on Kaggle (the 30B does not fit
-on a 24 GB GPU; Kaggle's ~96 GB option is required).
+The result is fine-tuned into the 30B with LoRA on Kaggle.
 
 ## Pipeline
 
@@ -43,11 +42,21 @@ rebuilds it on Kaggle anyway):
 python run_pipeline.py        # train.csv -> curriculum_thinking.jsonl
 ```
 
-Then push the self-contained notebook and run it on Kaggle (full walkthrough in
-**[SUBMIT_TO_KAGGLE.md](SUBMIT_TO_KAGGLE.md)**):
+Then push the self-contained notebook and run it on Kaggle:
 
 ```bash
+# 1. Push the notebook (uploads kaggle_remote/ to Kaggle and queues a run)
 kaggle kernels push -p kaggle_remote
+
+# 2. Poll until status changes from "running" to "complete"
+kaggle kernels status nphuong302/nemotron-challenge-solver-distilled-lora
+
+# 3. Download the output (submission.zip lands in the current directory)
+kaggle kernels output nphuong302/nemotron-challenge-solver-distilled-lora -p .
+
+# 4. Submit
+kaggle competitions submit -c nvidia-nemotron-model-reasoning-challenge \
+  -f submission.zip -m "solver-distilled LoRA r32 all-linear 450 steps"
 ```
 
 The notebook embeds the pipeline `.py` files and rebuilds the curriculum from the
@@ -78,10 +87,6 @@ competition `train.csv` on Kaggle, so there is **no separate dataset to upload**
 | Rank | 3571 / 4182 |
 | Approach | Solver-distilled SFT, LoRA rank-32, 450 steps on RTX 6000 Pro |
 
-The clean-data run (0-empty-think curriculum, `all-linear` LoRA r32, 450 steps) reached **0.588**,
-up from a 0.46 baseline with flawed empty-think targets and the 0.54 of the 350-step variant.
-The main finding: data quality (every record has a real reasoning trace) matters more than
-training duration.
 
 ## Setup
 
@@ -90,13 +95,7 @@ uv sync                       # create .venv and install deps from pyproject + u
 cp .env.example .env          # then fill in KAGGLE_USERNAME (and tokens if needed)
 ```
 
-Credentials live only in `.env` (gitignored) — never in source or the uploaded
-notebook. On Kaggle the base model is an attached input and auth is handled by
-the platform, so the notebook needs no tokens.
-
 ## Key facts
 
 - **Scored model:** NVIDIA-Nemotron-3-Nano-30B-A3B (hybrid Mamba-Transformer MoE), not the 4B.
-- **Submission:** a `submission.zip` containing only `adapter_config.json` + `adapter_model.safetensors`, LoRA rank ≤ 32.
 - **Inference (host):** greedy, pass@1, reasoning ("thinking") mode **on** by default; answer from `\boxed{}`.
-- **Training fits only on Kaggle's ~96 GB GPU**, not a 24 GB local card.
